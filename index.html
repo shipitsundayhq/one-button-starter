@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>One-Button Starter</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b0b18; color: #eef0ff; font-family: system-ui, sans-serif; overflow: hidden; touch-action: manipulation; }
+    canvas { display: block; margin: auto; background: #0b0b18; }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// ShipIt Sunday Challenge #1 starter: one-button browser game base.
+// ONLY input: Space / mouse click / screen tap. Keep everything in one file.
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, state = 'title', score = 0, best = +localStorage.getItem('oneButtonBest') || 0;
+
+function resize() {
+  W = canvas.width = Math.min(innerWidth, 480);
+  H = canvas.height = innerHeight;
+}
+resize();
+addEventListener('resize', resize);
+
+function reset() {
+  score = 0;
+  // TODO: set up your game objects here
+}
+
+function press() {
+  if (state === 'title' || state === 'over') {
+    reset();
+    state = 'play';
+    return;
+  }
+  if (state === 'play') {
+    // TODO: your one-button action (jump, shoot, flip, etc.)
+    score += 1;
+  }
+}
+
+addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (!e.repeat) press();
+  }
+});
+canvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  press();
+});
+
+let last = performance.now();
+function loop(t) {
+  const dt = Math.min((t - last) / 1000, 0.05);
+  last = t;
+
+  if (state === 'play') {
+    // TODO: update game (use dt for frame-rate independence)
+  }
+
+  ctx.fillStyle = '#0b0b18';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#eef0ff';
+
+  if (state === 'title') {
+    ctx.font = 'bold 36px system-ui';
+    ctx.fillText('Press to start', W / 2, H / 2 - 20);
+    ctx.font = '16px system-ui';
+    ctx.fillStyle = '#a7abd0';
+    ctx.fillText('Space, click, or tap', W / 2, H / 2 + 20);
+  } else if (state === 'play') {
+    ctx.font = 'bold 40px system-ui';
+    ctx.fillText(String(score), W / 2, 56);
+    // TODO: draw your game
+    ctx.font = '14px system-ui';
+    ctx.fillStyle = '#5fe1ff';
+    ctx.fillText('Replace me with your game loop', W / 2, H / 2);
+  } else {
+    if (score > best) {
+      best = score;
+      localStorage.setItem('oneButtonBest', String(best));
+    }
+    ctx.font = 'bold 36px system-ui';
+    ctx.fillText('Game over', W / 2, H / 2 - 40);
+    ctx.font = '18px system-ui';
+    ctx.fillText('Score ' + score + '   Best ' + best, W / 2, H / 2);
+    ctx.fillStyle = '#5fe1ff';
+    ctx.fillText('Press to retry', W / 2, H / 2 + 40);
+  }
+
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// Tip: to end a run, set state = 'over'
+</script>
+</body>
+</html>
